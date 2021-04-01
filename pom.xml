@@ -6,12 +6,12 @@
 
     <groupId>dev.thearcticgiant</groupId>
     <artifactId>dice4j</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2.0-alpha-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.6.2</version>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.7.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
