@@ -1,11 +1,33 @@
 package dev.thearcticgiant.dice4j;
 
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 
 public class Roll implements Rollable{
 	public final Set<Die> dice;
 	public final int count, sides, bonus;
+
+	/**
+	 * Construct a roll of the format xdy+z.
+	 * Random rolls are determined by the provided Random.
+	 * @param count A non-negative integer indicating number of dice rolled.
+	 * @param sides A positive integer indicating the number of sides on each die.
+	 * @param bonus The static bonus applied to the roll.
+	 * @param random The Random object for making rolls.
+	 * @throws RuntimeException if count is negative, or sides is non-positive.
+	 */
+	public Roll(int count, int sides, int bonus, Random random){
+		if(count < 0) throw new RuntimeException("count cannot be negative");
+		if(count > 0 && sides <= 0) throw new RuntimeException("sides must be positive");
+		this.count = count;
+		this.sides = sides;
+		this.bonus = bonus;
+
+		final Die[] dice = new Die[count];
+		for(int i=0; i<count; i++) dice[i] = new Die(sides, random);
+		this.dice = Set.of(dice);
+	}
 
 	/**
 	 * Construct a roll of the format xdy+z.
@@ -15,15 +37,19 @@ public class Roll implements Rollable{
 	 * @throws RuntimeException if count is negative, or sides is non-positive.
 	 */
 	public Roll(int count, int sides, int bonus){
-		if(count < 0) throw new RuntimeException("count cannot be negative");
-		if(count > 0 && sides <= 0) throw new RuntimeException("sides must be positive");
-		this.count = count;
-		this.sides = sides;
-		this.bonus = bonus;
+		this(count, sides, bonus, new Random());
+	}
 
-		final Die[] dice = new Die[count];
-		for(int i=0; i<count; i++) dice[i] = new Die(sides);
-		this.dice = Set.of(dice);
+	/**
+	 * Construct a seeded roll of the format xdy+z.
+	 * @param count A non-negative integer indicating number of dice rolled.
+	 * @param sides A positive integer indicating the number of sides on each die.
+	 * @param bonus The static bonus applied to the roll.
+	 * @param seed The seed for the generation of rolls.
+	 * @throws RuntimeException if count is negative, or sides is non-positive.
+	 */
+	public Roll(int count, int sides, int bonus, long seed){
+		this(count, sides, bonus, new Random(seed));
 	}
 
 	/**
@@ -40,6 +66,7 @@ public class Roll implements Rollable{
 	/**
 	 * Construct an empty roll.
 	 * Equivalent to Roll(0, 0, 0)
+	 * @throws RuntimeException if count is negative, or sides is non-positive.
 	 */
 	public Roll(){
 		this(0, 0, 0);

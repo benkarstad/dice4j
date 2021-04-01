@@ -28,7 +28,7 @@ public class Die implements Rollable{
 		this(sides, new Random());
 	}
 
-	private Die(int sides, Random random){
+	public Die(int sides, Random random){
 		this.sides = sides;
 		this.random = random;
 
