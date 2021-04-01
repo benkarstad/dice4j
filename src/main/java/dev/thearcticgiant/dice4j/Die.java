@@ -41,10 +41,12 @@ public class Die implements Rollable{
 	 * Re-roll this die;
 	 * @return The new result;
 	 */
+	@Override
 	public int roll(){
 		return roll = random.nextInt(sides)+1;
 	}
 
+	@Override
 	public int read(){
 		return roll;
 	}
@@ -53,6 +55,7 @@ public class Die implements Rollable{
 		return this.roll = roll;
 	}
 
+	@Override
 	public String getName(){
 		return String.format("1d%d", sides);
 	}
@@ -62,6 +65,7 @@ public class Die implements Rollable{
 		return String.format("1**d**%d", sides);
 	}
 
+	@Override
 	public String toString(){
 		return String.format("%s (%d)", getName(), roll);
 	}

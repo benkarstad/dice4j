@@ -76,6 +76,7 @@ public class Roll implements Rollable{
 	 * Calculate the total rolled plus the bonus.
 	 * @return The computed total.
 	 */
+	@Override
 	public int read(){
 		int total = bonus;
 		for(Die die : dice){
@@ -88,6 +89,7 @@ public class Roll implements Rollable{
 	 * Roll all dice.
 	 * @return The total rolled.
 	 */
+	@Override
 	public int roll(){
 		for(Die die : dice) die.roll();
 		return read();
@@ -132,6 +134,7 @@ public class Roll implements Rollable{
 	 * In the format "[a, b, c, ...]+k = t".
 	 * @return A string representing the rolled dice.
 	 */
+	@Override
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append('[');
