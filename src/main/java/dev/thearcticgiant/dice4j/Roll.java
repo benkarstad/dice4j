@@ -67,6 +67,7 @@ public class Roll implements Rollable{
 	}
 
 
+	@Override
 	public String getName(){
 		StringBuilder builder = new StringBuilder();
 		boolean hasDice = false;
@@ -82,6 +83,22 @@ public class Roll implements Rollable{
 		return builder.toString();
 	}
 
+	@Override
+	public String getMarkdownName(){
+		StringBuilder builder = new StringBuilder();
+		boolean hasDice = false;
+		if(count > 0){
+			hasDice = true;
+			builder.append(count).append("**d**").append(sides);
+		}
+		if(bonus<0) builder.append(bonus);
+		else if(bonus>0){
+			if(hasDice) builder.append("*+*");
+			builder.append(bonus);
+		} else if(!hasDice) builder.append(0);
+		return builder.toString();
+	}
+
 	/**
 	 * A string representation of the roll.
 	 * The equation is always equal to total().
@@ -89,17 +106,40 @@ public class Roll implements Rollable{
 	 * @return A string representing the rolled dice.
 	 */
 	public String toString(){
-		StringBuilder string = new StringBuilder();
-		string.append('[');
+		StringBuilder builder = new StringBuilder();
+		builder.append('[');
 		for(Iterator<Die> i=dice.iterator();i.hasNext();){
-			string.append(i.next().read());
-			if(i.hasNext()) string.append(", ");
+			builder.append(i.next().read());
+			if(i.hasNext()) builder.append(", ");
 		}
-		string.append(']');
-		if(bonus > 0) string.append('+').append(bonus);
-		else if(bonus < 0) string.append('-').append(-bonus);
-		string.append(" = ")
+		builder.append(']');
+		if(bonus > 0) builder.append('+').append(bonus);
+		else if(bonus < 0) builder.append('-').append(-bonus);
+		builder.append(" = ")
 				.append(read());
-		return string.toString();
+		return builder.toString();
+	}
+
+	@Override
+	public String toMarkdownString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append('[');
+		for(Iterator<Die> i=dice.iterator();i.hasNext();){
+			int die = i.next().read();
+
+			if(die == sides)
+				builder.append("**")
+						.append(die)
+						.append("**");
+			else builder.append(die);
+
+			if(i.hasNext()) builder.append(", ");
+		}
+		builder.append(']');
+		if(bonus > 0) builder.append("*+*").append(bonus);
+		else if(bonus < 0) builder.append('-').append(-bonus);
+		builder.append(" = ")
+				.append(read());
+		return builder.toString();
 	}
 }

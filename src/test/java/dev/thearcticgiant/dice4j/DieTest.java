@@ -41,14 +41,14 @@ class DieTest{
 	@Test
 	void getName(){
 		Die d6 = new Die(6);
-		assertEquals("d6", d6.getName());
+		assertEquals("1d6", d6.getName());
 	}
 
 	@Test
 	void testToString(){
 		Die d6 = new Die(6);
 		d6.fudge(6);
-		assertEquals("d6 (6)", d6.toString());
+		assertEquals("1d6 (6)", d6.toString());
 	}
 
 	@Test

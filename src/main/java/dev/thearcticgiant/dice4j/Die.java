@@ -54,10 +54,28 @@ public class Die implements Rollable{
 	}
 
 	public String getName(){
-		return String.format("d%d", sides);
+		return String.format("1d%d", sides);
+	}
+
+	@Override
+	public String getMarkdownName(){
+		return String.format("1**d**%d", sides);
 	}
 
 	public String toString(){
 		return String.format("%s (%d)", getName(), roll);
+	}
+
+	@Override
+	public String toMarkdownString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append(getMarkdownName()).append(" (");
+
+		if(roll >= sides) builder.append("**").append(roll).append("**");
+		else builder.append(roll);
+
+		builder.append(')');
+
+		return builder.toString();
 	}
 }
