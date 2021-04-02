@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.Set;
 
 public class Roll implements Rollable{
-	public final Set<Die> dice;
+	public final Set<Rollable> subRolls;
 	public final int count, sides, bonus;
 
 	/**
@@ -26,7 +26,7 @@ public class Roll implements Rollable{
 
 		final Die[] dice = new Die[count];
 		for(int i=0; i<count; i++) dice[i] = new Die(sides, random);
-		this.dice = Set.of(dice);
+		this.subRolls = Set.of(dice);
 	}
 
 	/**
@@ -79,8 +79,8 @@ public class Roll implements Rollable{
 	@Override
 	public int read(){
 		int total = bonus;
-		for(Die die : dice){
-			total+=die.read();
+		for(Rollable r : subRolls){
+			total+=r.read();
 		}
 		return total;
 	}
@@ -90,9 +90,9 @@ public class Roll implements Rollable{
 	 * @return The total rolled.
 	 */
 	@Override
-	public int roll(){
-		for(Die die : dice) die.roll();
-		return read();
+	public Roll roll(){
+		for(Rollable r : subRolls) r.roll();
+		return this;
 	}
 
 
@@ -138,7 +138,7 @@ public class Roll implements Rollable{
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append('[');
-		for(Iterator<Die> i=dice.iterator();i.hasNext();){
+		for(Iterator<Rollable> i=subRolls.iterator(); i.hasNext();){
 			builder.append(i.next().read());
 			if(i.hasNext()) builder.append(", ");
 		}
@@ -154,7 +154,7 @@ public class Roll implements Rollable{
 	public String toMarkdownString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append('[');
-		for(Iterator<Die> i=dice.iterator();i.hasNext();){
+		for(Iterator<Rollable> i=subRolls.iterator(); i.hasNext();){
 			int die = i.next().read();
 
 			if(die == sides)

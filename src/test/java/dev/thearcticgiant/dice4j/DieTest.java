@@ -27,15 +27,15 @@ class DieTest{
 	void roll(){
 		Die die = new Die(Integer.MAX_VALUE);
 		for(int i=0; i<2<<5; i++){
-			assertEquals(die.roll(), die.read());
-			assertNotEquals(die.read(), die.roll());
+			assertEquals(die.roll().read(), die.read());
+			assertNotEquals(die.read(), die.roll().read());
 		}
 	}
 
 	@Test
 	void read(){
 		Die d6 = new Die(6);
-		assertEquals(d6.roll(), d6.read());
+		assertEquals(d6.roll().read(), d6.read());
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class DieTest{
 			d1 = new Die(Integer.MAX_VALUE, seed);
 			d2 = new Die(Integer.MAX_VALUE, seed);
 			for(int i1=0; i1<2<<5; i1++){
-				assertEquals(d1.roll(), d2.roll());
+				assertEquals(d1.roll().read(), d2.roll().read());
 			}
 		}
 	}

@@ -3,10 +3,10 @@ package dev.thearcticgiant.dice4j;
 public interface Rollable{
 
 	/**
-	 * Generate a new random result.
-	 * @return The newly rolled result;
+	 * Generate a new random result and return self.
+	 * @return This Rollable;
 	 */
-	int roll();
+	Rollable roll();
 
 	/**
 	 * Return the most recently rolled result;

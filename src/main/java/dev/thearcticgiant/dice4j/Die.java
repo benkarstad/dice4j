@@ -42,8 +42,9 @@ public class Die implements Rollable{
 	 * @return The new result;
 	 */
 	@Override
-	public int roll(){
-		return roll = random.nextInt(sides)+1;
+	public Die roll(){
+		roll = random.nextInt(sides)+1;
+		return this;
 	}
 
 	@Override
