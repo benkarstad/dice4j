@@ -4,46 +4,43 @@ import java.util.Random;
 
 public class Die implements Rollable{
 	public final int sides;
+	private boolean locked;
 	private int roll;
 
 	private final Random random;
 
 	/**
+	 * Construct a new die, using a provided Random object.
+	 * @param sides The number of sides.
+	 * @param random The Random used to generate rolls.
+	 */
+	public Die(int sides, Random random){
+		this.sides = sides;
+		this.random = random;
+
+		roll();
+	}
+
+	/**
 	 * Construct and roll a new die with a specific random seed.
 	 * @param sides The number of sides.
 	 * @param seed The seed used to create the internal Random object.
-	 * @throws RuntimeException if sides is non-positive.
 	 */
 	public Die(int sides, long seed){
 		this(sides, new Random(seed));
 	}
 
 	/**
-	 * Construct and roll a new die.
+	 * Construct a new die.
 	 * @param sides The number of sides.
-	 * @throws RuntimeException if sides is non-positive.
 	 */
-
 	public Die(int sides){
 		this(sides, new Random());
 	}
 
-	public Die(int sides, Random random){
-		this.sides = sides;
-		this.random = random;
-
-		if(sides <= 0) throw new RuntimeException("sides must be positive");
-
-		roll();
-	}
-
-	/**
-	 * Re-roll this die;
-	 * @return The new result;
-	 */
 	@Override
 	public Die roll(){
-		roll = random.nextInt(sides)+1;
+		if(!locked) roll = random.nextInt(sides)+1;
 		return this;
 	}
 
@@ -52,8 +49,14 @@ public class Die implements Rollable{
 		return roll;
 	}
 
-	public int fudge(int roll){
-		return this.roll = roll;
+	@Override
+	public final void lock(){
+		locked = true;
+	}
+
+	@Override
+	public final boolean isLocked(){
+		return locked;
 	}
 
 	@Override
@@ -68,18 +71,15 @@ public class Die implements Rollable{
 
 	@Override
 	public String toString(){
-		return String.format("%s (%d)", getName(), roll);
+		return Integer.toString(roll);
 	}
 
 	@Override
 	public String toMarkdownString(){
 		StringBuilder builder = new StringBuilder();
-		builder.append(getMarkdownName()).append(" (");
 
 		if(roll >= sides) builder.append("**").append(roll).append("**");
 		else builder.append(roll);
-
-		builder.append(')');
 
 		return builder.toString();
 	}

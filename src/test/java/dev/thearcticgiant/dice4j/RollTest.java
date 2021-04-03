@@ -2,33 +2,80 @@ package dev.thearcticgiant.dice4j;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class RollTest{
 
 	@Test
-	void constructor(){
-		assertThrows(RuntimeException.class, ()->new Roll(1, 0, 0));
-		assertThrows(RuntimeException.class, ()->new Roll(-1, 1));
+	void lock(){
+		Die die = new Die(Integer.MAX_VALUE);
+		Roll roll = new Roll(die);
+
+		roll.lock();
+		assertEquals(die.read(), roll.read());
+		assertTrue(die.isLocked());
 	}
 
 	@Test
-	void getName(){
-		Roll roll, oneDie, negativeBonus, noBonus, onlyBonus, onlyNegativeBonus, empty;
-		roll = new Roll(3, 6, 5);
-		oneDie = new Roll(1, 20);
-		negativeBonus = new Roll(3, 6, -7);
-		noBonus = new Roll(3, 6);
-		onlyBonus = new Roll(0, 0, 1);
-		onlyNegativeBonus = new Roll(0, 0, -1);
-		empty = new Roll();
+	void roll(){
+		String[] testExpressions = new String[]{
+				"",
+				"0",
+				"+0",
+				"-0",
+				"5",
+				"+5",
+				"-5",
+				"0d20",
+				"0d20+0",
+				"0d20-0",
+				"0d20+5",
+				"0d20-5",
+				"d20",
+				"d20+0",
+				"d20-0",
+				"d20+5",
+				"d20-5",
+				"3d6",
+				"3d6+0",
+				"3d6-0",
+				"3d6+5",
+				"3d6-5"
+		},
+		expectedNames = new String[]{
+				"",
+				"0",
+				"0",
+				"0",
+				"5",
+				"5",
+				"-5",
+				"0d20-0",
+				"0d20+5",
+				"0d20-5",
+				"5",
+				"-5",
+				"1d20",
+				"1d20",
+				"1d20",
+				"1d20+5",
+				"1d20-5",
+				"3d6",
+				"3d6",
+				"3d6",
+				"3d6+5",
+				"3d6-5"
+		};
 
-		assertEquals("3d6+5", roll.getName());
-		assertEquals("1d20", oneDie.getName());
-		assertEquals("3d6-7", negativeBonus.getName());
-		assertEquals("3d6", noBonus.getName());
-		assertEquals("1", onlyBonus.getName());
-		assertEquals("-1", onlyNegativeBonus.getName());
-		assertEquals("0", empty.getName());
+		Iterator<String>
+				testExpressionsIterator = Arrays.stream(testExpressions).iterator(),
+				expectedNamesIterator = Arrays.stream(expectedNames).iterator();
+
+		while(testExpressionsIterator.hasNext()){
+			assertEquals(expectedNamesIterator.next(), Roll.of(testExpressionsIterator.next()).getName());
+		}
 	}
 }

@@ -3,7 +3,7 @@ package dev.thearcticgiant.dice4j;
 public interface Rollable{
 
 	/**
-	 * Generate a new random result and return self.
+	 * Generate a new result and return self.
 	 * @return This Rollable;
 	 */
 	Rollable roll();
@@ -16,7 +16,19 @@ public interface Rollable{
 	int read();
 
 	/**
-	 * A human readable string representation of this Rollable's state, irrespective of the result of a given roll.
+	 * Permanently locks this Rollable such that all future calls to read and toString are guaranteed to return the same result.
+	 * Calls to roll, and any other attempts to modify this Rollable's total are unsuccessful.
+	 */
+	void lock();
+
+	/**
+	 * Determine if this Rollable is locked.
+	 * @return True if lock has previously been called on this Rollable.
+	 */
+	boolean isLocked();
+
+	/**
+	 * A human readable string representation of this Rollable's state, irrespective of the current state.
 	 * The result should provide all the necessary information to construct a similar Rollable.
 	 * @return The name of this particular Rollable.
 	 */
@@ -34,7 +46,6 @@ public interface Rollable{
 	/**
 	 * Return a full, human readable representation of this Rollable's most recent roll.
 	 * The total rolled should be unambiguously calculable from the returned String.
-	 * It is recommended, but not mandatory to explicitly state the total.
 	 * @return The amounts rolled and any modifiers.
 	 */
 	String toString();

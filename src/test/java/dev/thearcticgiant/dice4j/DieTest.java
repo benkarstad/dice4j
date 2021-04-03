@@ -9,21 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class DieTest{
 
 	@Test
-	void constructor(){
-		assertThrows(RuntimeException.class, ()->new Die(0, 0));
-		assertThrows(RuntimeException.class, ()->new Die(-1, 1));
-	}
-
-	@Test
-	void fudge(){
-		Die die = new Die(6);
-		for(int i=0; i<6; i++){
-			assertEquals(i, die.fudge(i));
-			assertEquals(i, die.read());
-		}
-	}
-
-	@Test
 	void roll(){
 		Die die = new Die(Integer.MAX_VALUE);
 		for(int i=0; i<2<<5; i++){
@@ -47,8 +32,7 @@ class DieTest{
 	@Test
 	void testToString(){
 		Die d6 = new Die(6);
-		d6.fudge(6);
-		assertEquals("1d6 (6)", d6.toString());
+		assertEquals(Integer.toString(d6.read()), d6.toString());
 	}
 
 	@Test
