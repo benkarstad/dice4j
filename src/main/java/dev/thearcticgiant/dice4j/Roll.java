@@ -1,105 +1,121 @@
 package dev.thearcticgiant.dice4j;
 
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Roll implements Rollable{
-	public final Set<Die> dice;
-	public final int count, sides, bonus;
+	private static Matcher matcher = Pattern.compile("(?:(?<count>[+-]?\\d++)?d(?<sides>[+-]?\\d++))?(?<bonus>[+-]?\\d++)?").matcher("");
 
-	/**
-	 * Construct a roll of the format xdy+z.
-	 * @param count A non-negative integer indicating number of dice rolled.
-	 * @param sides A positive integer indicating the number of sides on each die.
-	 * @param bonus The static bonus applied to the roll.
-	 * @throws RuntimeException if count is negative, or sides is non-positive.
-	 */
+	public final List<Rollable> rolls;
+	private boolean locked = false;
+
+	public Roll(Rollable... rolls){
+		this.rolls = List.of(rolls);
+	}
 	public Roll(int count, int sides, int bonus){
-		if(count < 0) throw new RuntimeException("count cannot be negative");
-		if(count > 0 && sides <= 0) throw new RuntimeException("sides must be positive");
-		this.count = count;
-		this.sides = sides;
-		this.bonus = bonus;
-
-		final Die[] dice = new Die[count];
-		for(int i=0; i<count; i++) dice[i] = new Die(sides);
-		this.dice = Set.of(dice);
+		this(new Dice(count, sides), new Bonus(bonus));
 	}
-
-	/**
-	 * Construct a roll of the format xdy.
-	 * Equivalent to Roll(count, sides, 0).
-	 * @param count A non-negative integer indicating number of dice rolled.
-	 * @param sides A positive integer indicating the number of sides on each die.
-	 * @throws RuntimeException if count is negative, or sides is non-positive.
-	 */
 	public Roll(int count, int sides){
-		this(count, sides, 0);
+		this(new Dice(count, sides));
 	}
 
-	/**
-	 * Construct an empty roll.
-	 * Equivalent to Roll(0, 0, 0)
-	 */
-	public Roll(){
-		this(0, 0, 0);
-	}
+	public static Roll of(String exp){
+		if(!matcher.reset(exp).matches()) throw new RuntimeException("invalid dice expression");
+		String  countStr = matcher.group("count"),
+				sidesStr = matcher.group("sides"),
+				bonusStr = matcher.group("bonus");
 
-	/**
-	 * Calculate the total rolled plus the bonus.
-	 * @return The computed total.
-	 */
-	public int read(){
-		int total = bonus;
-		for(Die die : dice){
-			total+=die.read();
+		if(countStr == null){
+			if(sidesStr == null) countStr = sidesStr = "0";
+			else countStr = "1";
 		}
+
+		if(bonusStr == null) bonusStr = "0";
+
+		final int
+				count = Integer.parseInt(countStr),
+				sides = Integer.parseInt(sidesStr),
+				bonus = Integer.parseInt(bonusStr);
+		if(count <= 0 || sides <= 0) return new Roll(new Bonus(bonus));
+		else if(bonus == 0) return new Roll(count, sides);
+		return new Roll(count, sides, bonus);
+	}
+
+	public static Roll of(int count, int sides, int bonus){
+		return new Roll(count, sides, bonus);
+	}
+
+	public static Roll of(int count, int sides){
+		return new Roll(count, sides);
+	}
+
+	@Override
+	public Rollable roll(){
+		for(Rollable r : rolls)r.roll();
+		return this;
+	}
+
+	@Override
+	public int read(){
+		int total = 0;
+		for(Rollable r : rolls) total += r.read();
 		return total;
 	}
 
-	/**
-	 * Roll all dice.
-	 * @return The total rolled.
-	 */
-	public int roll(){
-		for(Die die : dice) die.roll();
-		return read();
+	@Override
+	public void lock(){
+		locked = true;
+		for(Rollable r : rolls) r.lock();
 	}
 
+	@Override
+	public boolean isLocked(){
+		return locked;
+	}
 
+	@Override
 	public String getName(){
 		StringBuilder builder = new StringBuilder();
-		boolean hasDice = false;
-		if(count > 0){
-			hasDice = true;
-			builder.append(count).append('d').append(sides);
+		for(Iterator<Rollable> i=rolls.iterator();i.hasNext();){
+			builder.append(i.next().getName());
+			if(i.hasNext()) builder.append('+');
 		}
-		if(bonus<0) builder.append(bonus);
-		else if(bonus>0){
-			if(hasDice) builder.append('+');
-			builder.append(bonus);
-		} else if(!hasDice) builder.append(0);
+
 		return builder.toString();
 	}
 
-	/**
-	 * A string representation of the roll.
-	 * The equation is always equal to total().
-	 * In the format "[a, b, c, ...]+k = t".
-	 * @return A string representing the rolled dice.
-	 */
-	public String toString(){
-		StringBuilder string = new StringBuilder();
-		string.append('[');
-		for(Iterator<Die> i=dice.iterator();i.hasNext();){
-			string.append(i.next().read());
-			if(i.hasNext()) string.append(", ");
+	@Override
+	public String getMarkdownName(){
+		StringBuilder builder = new StringBuilder();
+		for(Iterator<Rollable> i=rolls.iterator();i.hasNext();){
+			builder.append(i.next().getMarkdownName());
+			if(i.hasNext()) builder.append('+');
 		}
-		string.append(']');
-		if(bonus > 0) string.append('+').append(bonus);
-		else if(bonus < 0) string.append('-').append(-bonus);
-		string.append(" = ")
-				.append(read());
-		return string.toString();
+
+		return builder.toString();
+	}
+
+	@Override
+	public String toString(){
+		StringBuilder builder = new StringBuilder();
+		for(Iterator<Rollable> i=rolls.iterator(); i.hasNext();){
+			builder.append(i.next().toString());
+			if(i.hasNext()) builder.append('+');
+		}
+
+		return builder.toString();
+	}
+
+	@Override
+	public String toMarkdownString(){
+		StringBuilder builder = new StringBuilder();
+		for(Iterator<Rollable> i=rolls.iterator(); i.hasNext();){
+			builder.append(i.next().toMarkdownString());
+			if(i.hasNext()) builder.append('+');
+		}
+
+		return builder.toString();
 	}
 }
