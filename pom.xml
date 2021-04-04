@@ -6,7 +6,7 @@
 
     <groupId>dev.thearcticgiant</groupId>
     <artifactId>dice4j</artifactId>
-    <version>0.2.0-alpha-SNAPSHOT</version>
+    <version>0.3.0-alpha-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

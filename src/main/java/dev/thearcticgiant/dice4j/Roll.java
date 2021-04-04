@@ -1,18 +1,26 @@
 package dev.thearcticgiant.dice4j;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Roll implements Rollable{
 	private static Matcher matcher = Pattern.compile("(?:(?<count>[+-]?\\d++)?d(?<sides>[+-]?\\d++))?(?<bonus>[+-]?\\d++)?").matcher("");
 
 	public final List<Rollable> rolls;
+	public final List<Rule> rules;
 	private boolean locked = false;
 
+	public Roll(List<Rollable> rolls, List<Rule> rules){
+		this.rolls = rolls;
+		this.rules = rules;
+	}
 	public Roll(Rollable... rolls){
-		this.rolls = List.of(rolls);
+		this(List.of(rolls), List.of());
 	}
 	public Roll(int count, int sides, int bonus){
 		this(new Dice(count, sides), new Bonus(bonus));
@@ -51,6 +59,12 @@ public class Roll implements Rollable{
 		return new Roll(count, sides);
 	}
 
+	public Roll apply(Rule rule){
+		return new Roll(rolls, Stream.of(rules, List.of(rule))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList()));
+	}
+
 	@Override
 	public Rollable roll(){
 		for(Rollable r : rolls)r.roll();
@@ -59,8 +73,11 @@ public class Roll implements Rollable{
 
 	@Override
 	public int read(){
+		Roll computedRoll = this;
 		int total = 0;
-		for(Rollable r : rolls) total += r.read();
+
+		for(Rule rule : rules) computedRoll = rule.apply(computedRoll);
+		for(Rollable r : computedRoll.rolls) total += r.read();
 		return total;
 	}
 

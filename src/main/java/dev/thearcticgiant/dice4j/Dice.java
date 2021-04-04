@@ -2,12 +2,18 @@ package dev.thearcticgiant.dice4j;
 
 import java.util.Iterator;
 import java.util.Random;
-import java.util.List;
 
-public class Dice implements Rollable{
-	public final List<Die> dice;
+/**
+ * A subclass of Roll that represents a fixed number of identical dice.
+ */
+public class Dice extends Roll{
 	public final int count, sides;
-	private boolean locked = false;
+
+	private static Die[] makeDice(int count, int sides, Random random){
+		final Die[] dice = new Die[count];
+		for(int i=0; i<count; i++) dice[i] = new Die(sides, random);
+		return dice;
+	}
 
 	/**
 	 * Construct a roll of the format xdy.
@@ -15,17 +21,11 @@ public class Dice implements Rollable{
 	 * @param count A positive integer indicating number of dice rolled.
 	 * @param sides A positive integer indicating the number of sides on each die.
 	 * @param random The Random object for making rolls.
-	 * @throws RuntimeException if count or sides is non-positive.
 	 */
 	public Dice(int count, int sides, Random random){
-		if(count <= 0) throw new RuntimeException("count must be positive");
-		if(sides <= 0) throw new RuntimeException("sides must be positive");
+		super(makeDice(count, sides, random));
 		this.count = count;
 		this.sides = sides;
-
-		final Die[] dice = new Die[count];
-		for(int i=0; i<count; i++) dice[i] = new Die(sides, random);
-		this.dice = List.of(dice);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class Dice implements Rollable{
 	@Override
 	public int read(){
 		int total = 0;
-		for(Die die : dice){
+		for(Rollable die : rolls){
 			total+=die.read();
 		}
 		return total;
@@ -60,19 +60,8 @@ public class Dice implements Rollable{
 
 	@Override
 	public Dice roll(){
-		if(!locked) for(Die die : dice) die.roll();
+		if(!isLocked()) for(Rollable die : rolls) die.roll();
 		return this;
-	}
-
-	@Override
-	public final void lock(){
-		locked = true;
-		for(Die die : dice) die.lock();
-	}
-
-	@Override
-	public final boolean isLocked(){
-		return locked;
 	}
 
 	/**
@@ -103,7 +92,7 @@ public class Dice implements Rollable{
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append('[');
-		for(Iterator<Die> i = dice.iterator(); i.hasNext();){
+		for(Iterator<Rollable> i = rolls.iterator(); i.hasNext();){
 			builder.append(i.next().read());
 			if(i.hasNext()) builder.append(", ");
 		}
@@ -119,7 +108,7 @@ public class Dice implements Rollable{
 	public String toMarkdownString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append('[');
-		for(Iterator<Die> i = dice.iterator(); i.hasNext();){
+		for(Iterator<Rollable> i = rolls.iterator(); i.hasNext();){
 			int die = i.next().read();
 
 			if(die == sides)
